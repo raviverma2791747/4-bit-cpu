@@ -17,11 +17,15 @@
 #define OUT 6
 #define STORE 7
 #define HALT 8
+#define EXIT 9
 
 using namespace std;
 
+/*clock cycle starts if clk = 1 and stops if clk = 0*/
+int clk=1;
+
 /*Main Memory*/
-int ram[16] = {ADD,01,01,0,OUT,3,HALT};
+int ram[16] = {ADD,01,01,0,OUT,3,HALT,EXIT};
 int bus[4];
 
 /*Registers*/
@@ -67,6 +71,10 @@ void instruction(int inst=0)
        system("pause");
 
    }
+   else if(inst == EXIT)
+   {
+       clk = 0;
+   }
 
 }
 void add()
@@ -84,9 +92,12 @@ void control_unit()
 }
 int main()
 {
-    while(1)
+    while(clk)
     {
-
+        if(clk==0)
+        {
+            break;
+        }
         control_unit();
     }
 
