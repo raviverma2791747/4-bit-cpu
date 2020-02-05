@@ -1,6 +1,7 @@
 #include <iostream>
-#include<time.h>
+#include<stdlib.h>
 #include "ic.h"
+
 
 /*RAM access modifier*/
 #define ENABLE 0
@@ -15,11 +16,15 @@
 #define LOAD 5
 #define OUT 6
 #define STORE 7
+#define HALT 8
 
 using namespace std;
 
-int ram[16] = {ADD,01,01,0,OUT,3};
+/*Main Memory*/
+int ram[16] = {ADD,01,01,0,OUT,3,HALT};
 int bus[4];
+
+/*Registers*/
 int pc=0;
 int ir=0;
 int mar=0;
@@ -52,8 +57,15 @@ void instruction(int inst=0)
    }
    else if(inst == OUT)
    {
+       pc = pc +2;
+       cout<<_ram(_ram(pc - 1,ENABLE),ENABLE);
+   }
+   else if(inst == HALT)
+   {
 
-       cout<<_ram(pc+1,ENABLE);
+       pc = pc + 1;
+       system("pause");
+
    }
 
 }
