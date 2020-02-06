@@ -9,15 +9,57 @@
 
 /*CPU instructions*/
 #define ADD 0
+/* ADD instruction
+   ADD <operand1> <operand2>
+*/
 #define COMPARE 1
+/* COMPARE instruction
+   Not defined
+*/
 #define IN 2
+/* IN instruction
+   IN <input variable stored>
+*/
 #define JUMP 3
+/* JUMP instruction
+   JUMP <address of jump to location>
+*/
 #define JUMP_IF 4
+/* JUMP_IF instruction
+   JUMP_IF <operand1> <operator> <operand2> <address of jump to location if condition if true>
+*/
 #define LOAD 5
+/* LOAD instruction
+   Not defined
+*/
 #define OUT 6
+/* OUT instruction
+   OUT <address of data to output>
+*/
 #define STORE 7
+/* STORE instruction
+   STORE <address of data> <address of location where data is to be stored>
+*/
 #define HALT 8
+/* HALT instruction
+   HALT
+*/
 #define EXIT 9
+/* EXIT instruction
+   EXIT
+*/
+#define DATA 10
+/* DATA instruction
+   DATA <N values stored> <value1> <value2> <value3> ... <valueN>
+*/
+
+/*Relational operators*/
+#define EQUAL 0
+#define GREATER 1
+#define SMALLER 2
+#define GREATER_EQUAL 3
+#define SMALLER_EQUAL 4
+#define NOT_EQUAL 5
 
 using namespace std;
 
@@ -25,11 +67,12 @@ using namespace std;
 int clk=1;
 
 /*Main Memory*/
-int ram[18] = {IN,0,IN,0,STORE,1,11,STORE,
-,12,ADD,0,0,0,OUT,13,HALT,EXIT};
-/*              0 1  2 3   4   5 6   7    8 9  10  111213 14 15 16  17
-int bus[4];
+int ram[30] = {JUMP_IF,1,NOT_EQUAL,1,8,OUT,9,DATA,2,10,11,HALT,EXIT};
+/* addition program instructions
+{IN,0,IN,0,STORE,1,12,STORE,3,12,ADD,0,0,0,OUT,13,HALT,EXIT}
+*/
 
+int bus[4];
 /*Registers*/
 int pc=0;
 int ir=0;
@@ -44,7 +87,7 @@ int add(int a,int b)
 }
 int _ram(int addr,int choice)
 {
-        return ram[addr];
+    return ram[addr];
 }
 
 void _ram(int addr,int choice,int data)
@@ -57,46 +100,130 @@ void _ram(int addr,int choice,int data)
 
 void instruction(int inst=0)
 {
-   if(inst == ADD)
-   {
+    if(inst == ADD)
+    {
         _ram(pc + 3,SET,add(_ram(pc+1,ENABLE),_ram(pc+2,ENABLE)));
         pc = pc + 4;
-   }
-   else if(inst == OUT)
-   {
-       cout<<_ram(_ram(pc + 1,ENABLE),ENABLE);
-       pc = pc +2;
-   }
-   else if(inst == HALT)
-   {
+    }
+    else if(inst == OUT)
+    {
+        cout<<_ram(_ram(pc + 1,ENABLE),ENABLE);
+        pc = pc +2;
+    }
+    else if(inst == HALT)
+    {
+        pc = pc + 1;
+        system("pause");
+
+    }
+    else if(inst == IN)
+    {
+        int temp=0;
+        cin>>temp;
+        _ram(pc+1,SET,temp);
+        pc =  pc + 2;
+    }
+    else if(inst == JUMP)
+    {
+        pc = _ram(pc+1,ENABLE);
+
+    }
+    else if(inst == JUMP_IF)
+    {
+        if(_ram(pc+2,ENABLE) == 0)
+        {
+            if(_ram(pc+1,ENABLE) == _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else if(_ram(pc+2,ENABLE) == 1)
+        {
+            if(_ram(pc+1,ENABLE) > _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else if(_ram(pc+2,ENABLE) == 2)
+        {
+            if(_ram(pc+1,ENABLE) < _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else if(_ram(pc+2,ENABLE) == 3)
+        {
+            if(_ram(pc+1,ENABLE) >= _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else if(_ram(pc+2,ENABLE) == 4)
+        {
+            if(_ram(pc+1,ENABLE) <= _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else if(_ram(pc+2,ENABLE) == 5)
+        {
+            if(_ram(pc+1,ENABLE) != _ram(pc+3,ENABLE))
+            {
+                pc = _ram(pc+4,ENABLE);
+            }
+            else
+            {
+                pc = pc + 5;
+            }
+        }
+        else
+        {
+            pc = 0;
+        }
 
 
-       pc = pc + 1;
-       system("pause");
-
-   }
-   else if(inst == IN)
-   {
-       int temp=0;
-       cin>>temp;
-       _ram(pc+1,SET,temp);
-       pc =  pc + 2;
-   }
-   else if(inst == JUMP)
-   {
-     int temp = _ram(_ram(pc+1,ENABLE),ENABLE);
-     pc  = temp;
-   }
-   else if(inst == EXIT)
-   {
-       clk = 0;
-       pc = pc + 1;
-   }
-   else if(inst == STORE)
-   {
-       _ram(_ram(pc+2,ENABLE),SET,_ram(pc+1,ENABLE));
-       pc =  pc + 3;
-   }
+    }
+    else if(inst == EXIT)
+    {
+        clk = 0;
+        pc = pc + 1;
+    }
+    else if(inst == STORE)
+    {
+        _ram(_ram(pc+2,ENABLE),SET,_ram(_ram(pc+1,ENABLE),ENABLE));
+        pc =  pc + 3;
+    }
+    else if(inst == DATA)
+    {
+        if(_ram(pc+1,ENABLE)==0)
+        {
+            pc = pc + 2;
+        }
+        else
+        {
+            pc = pc + _ram(pc+1,ENABLE) + 2;
+        }
+    }
 
 }
 
@@ -107,7 +234,7 @@ void alu()
 
 void control_unit()
 {
-  instruction(_ram(pc,ENABLE));
+    instruction(_ram(pc,ENABLE));
 }
 int main()
 {
@@ -119,6 +246,24 @@ int main()
         }
         control_unit();
     }
+    cout<<ram[0]<<"\n";
+    cout<<ram[1]<<"\n";
+    cout<<ram[2]<<"\n";
+    cout<<ram[3]<<"\n";
+    cout<<ram[4]<<"\n";
+    cout<<ram[5]<<"\n";
+    cout<<ram[6]<<"\n";
+    cout<<ram[7]<<"\n";
+    cout<<ram[8]<<"\n";
+    cout<<ram[9]<<"\n";
+    cout<<ram[10]<<"\n";
+    cout<<ram[11]<<"\n";
+    cout<<ram[12]<<"\n";
+    cout<<ram[13]<<"\n";
+    cout<<ram[14]<<"\n";
+    cout<<ram[15]<<"\n";
+    cout<<ram[16]<<"\n";
+    cout<<ram[17]<<"\n";
 
     return 0;
 }
