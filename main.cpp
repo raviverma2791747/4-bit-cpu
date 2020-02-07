@@ -50,7 +50,7 @@
 */
 #define DATA 10
 /* DATA instruction
-   DATA <N values stored> <value1> <value2> <value3> ... <valueN>
+   DATA <type> <N values stored> <value1> <value2> <value3> ... <valueN>
 */
 
 /*Relational operators*/
@@ -67,9 +67,17 @@ using namespace std;
 int clk=1;
 
 /*Main Memory*/
-int ram[30] = {JUMP_IF,1,NOT_EQUAL,1,8,OUT,9,DATA,2,10,11,HALT,EXIT};
+int ram[40] = {DATA,1,0,IN,0,STORE,4,26,OUT,2,STORE,2,14,ADD,0,1,0,STORE,16,2,STORE,2,24,JUMP_IF,0,SMALLER,0,8,HALT,EXIT};
 /* addition program instructions
 {IN,0,IN,0,STORE,1,12,STORE,3,12,ADD,0,0,0,OUT,13,HALT,EXIT}
+
+addition program with try again
+{DATA,1,1,IN,0,IN,0,STORE,4,14,STORE,6,15,ADD,0,0,0,OUT,16,IN,0,STORE,20,28,STORE,2,30,JUMP_IF,0,EQUAL,0,0,HALT,EXIT}
+
+loop program with prints number till inputed N or for loop
+{DATA,1,0,IN,0,STORE,4,26,OUT,2,STORE,2,14,ADD,0,1,0,STORE,16,2,STORE,2,24,JUMP_IF,0,SMALLER,0,8,HALT,EXIT}
+
+
 */
 
 int bus[4];
@@ -107,7 +115,7 @@ void instruction(int inst=0)
     }
     else if(inst == OUT)
     {
-        cout<<_ram(_ram(pc + 1,ENABLE),ENABLE);
+        cout<<_ram(_ram(pc + 1,ENABLE),ENABLE)<<"\n";
         pc = pc +2;
     }
     else if(inst == HALT)
